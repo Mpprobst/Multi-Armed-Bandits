@@ -13,8 +13,8 @@ AGENTS_MAP = {'randomAgent' : randomAgent,
                'epsGreedyAgent' : epsGreedyAgent,
               'UCBAgent': UCBAgent,
               'thompsonAgent': thompsonAgent  }
-                
-class bandit: 
+
+class bandit:
     def __init__(self, file):
         f = open(file, "r")
         lines = f.readlines()
@@ -23,7 +23,7 @@ class bandit:
         self.arms = []
         for i in range(1, len(lines)):
             self.arms.append(float(lines[i]))
-        
+
     def pull_arm(self, arm):
         prob = self.arms[arm]
 
@@ -34,8 +34,8 @@ class bandit:
             return 0
     def getNumArms(self):
         return len(self.arms)
-        
- 
+
+
 
 
 parser = argparse.ArgumentParser(description='Define bandit problem and agents.')
@@ -55,4 +55,13 @@ for numRuns in range(args.num_plays):
     history.append((testArm, reward))
 
 print(cumulative_reward)
-    
+
+#debug for me
+pullCounts = [0] * testBandit.getNumArms()
+proportionPulled = [0] * testBandit.getNumArms()
+for h in history:
+    pullCounts[h[0]] += 1
+print(f'pull counts: {pullCounts}')
+for i in range(len(proportionPulled)):
+    proportionPulled[i] = pullCounts[i] / len(history)
+print(f'proportion pulled: {proportionPulled}')
