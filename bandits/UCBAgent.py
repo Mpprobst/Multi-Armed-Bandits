@@ -5,17 +5,18 @@ import copy
 import time
 import random
 import argparse
+import math
 ######################################################
 
-#Okay what do we need to do. First, create agents. This should use command line args. 
+#Okay what do we need to do. First, create agents. This should use command line args.
 #Also we need to create the game
 class UCBAgent:
     def __init__(self):
         #self.currentState.print_board()
         self.name = "Uma the UCB Agent"
-    
+
     def recommendArm(self, bandit, history):
-        armRewards = [] 
+        armRewards = []
         armPulls = [0] * bandit.getNumArms()
         armProbs = [0.0] * bandit.getNumArms()
         for arm in range(bandit.getNumArms()):
@@ -38,13 +39,12 @@ class UCBAgent:
 
         #Get best looking arm
         if len(armRewards) > 0:
-            
             #Calculate weighted probability of each arm
             t = len(history) ** -4
             probabilities = [0.0] * bandit.getNumArms()
             for arm in range(bandit.getNumArms()):
                 #probability = q_hat + sqrt((2ln(t)) / timesArmPulled)
-                probabilities[arm] = armRewards[arm][1] + np.sqrt(2.0 * np.ln(t) / armPulls[arm])
+                probabilities[arm] = armRewards[arm][1] + np.sqrt(-2.0 * np.log(t) / armPulls[arm])
 
             randNum = random.uniform(0, sum(probabilities))
             #print(probabilities)
@@ -56,7 +56,5 @@ class UCBAgent:
                     return i
                 else:
                     randNum -= probabilities[i]
-
-
 
         return False
