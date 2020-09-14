@@ -14,9 +14,11 @@ class UCBAgent:
     def __init__(self):
         #self.currentState.print_board()
         self.name = "Uma the UCB Agent"
+        self.prevQs = []
+        self.prevArmCounts = []
 
     def recommendArm(self, bandit, history):
-        armRewards = []
+        armRewards = [0.0] * bandit.getNumArms()
         armPulls = [0] * bandit.getNumArms()
         armProbs = [0.0] * bandit.getNumArms()
         for arm in range(bandit.getNumArms()):
@@ -33,28 +35,31 @@ class UCBAgent:
             elif len(history) >= bandit.getNumArms():
                 #Q_hat = 1/timesPulledCurrentArm * SUM(reward_at_time_t * (a_tau == a))
                 q_hat = (1 / timesArmPulled) * cumRewardForArm
-                armRewards.append((arm, q_hat))
+                armRewards[arm] = q_hat
                 armPulls[arm] = timesArmPulled
 
-
+        self.prevQs = armRewards
+        self.prevArmCounts = armPulls
         #Get best looking arm
         if len(armRewards) > 0:
             #Calculate weighted probability of each arm
-            t = len(history) ** -4
             probabilities = [0.0] * bandit.getNumArms()
+            maxArm = 0
             for arm in range(bandit.getNumArms()):
-                #probability = q_hat + sqrt((2ln(t)) / timesArmPulled)
-                probabilities[arm] = armRewards[arm][1] + np.sqrt(-2.0 * np.log(t) / armPulls[arm])
+                #probability = q_hat + sqrt(-(2ln(t)) / timesArmPulled)
+                probabilities[arm] = armRewards[arm] + np.sqrt(-2.0 * np.log(armPulls[arm] ** -4) / armPulls[arm])
+                if probabilities[arm] > probabilities[maxArm]:
+                    maxArm = arm
 
-            randNum = random.uniform(0, sum(probabilities))
-            #print(probabilities)
-            #print(f'randNum = {randNum} from range (0, {sum(probabilities)})')
-            for i in range(len(probabilities)):
-                #print(f'i = {i} prob = {probabilities[i]} random = {randNum}')
-                if probabilities[i] > randNum:
-                    #print(f'choosing {i}')
-                    return i
-                else:
-                    randNum -= probabilities[i]
+            return maxArm
 
         return False
+
+    """
+    gets the Q values for every
+    """
+    def CalculateRegret(self, v):
+        regret = 0
+        for i in range(len(self.prevArmCounts)):
+            regret += self.prevArmCounts[i] * (v - self.prevQs[i])
+        return regret

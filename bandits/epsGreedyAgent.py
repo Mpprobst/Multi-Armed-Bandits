@@ -14,6 +14,8 @@ class epsGreedyAgent:
     def __init__(self):
         #self.currentState.print_board()
         self.name = "Eric the Epsilon Greedy Agent"
+        self.prevQs = []
+        self.prevArmCounts = []
 
     """
     bandit is the current bandit with variables like: arms
@@ -28,8 +30,8 @@ class epsGreedyAgent:
         #else exploit
         #Look at each arm
         #calculate best looking arm
-        armRewards = []
-        armProbs = []
+        armRewards = [0.0] * bandit.getNumArms()
+        armPulls = [0] * bandit.getNumArms()
         for arm in range(bandit.getNumArms()):
             timesArmPulled = 0
             cumRewardForArm = 0
@@ -39,17 +41,31 @@ class epsGreedyAgent:
                     timesArmPulled += 1
                     cumRewardForArm += pull[1]
             #print(f'arm {arm} pulled {timesArmPulled} times for total reward of {cumRewardForArm}')
+            armPulls[arm] = timesArmPulled
             if (timesArmPulled > 0):
                 #Q_hat = 1/timesPulledCurrentArm * SUM(reward_at_time_t * (a_tau == a))
                 q_hat = cumRewardForArm / timesArmPulled
-                armRewards.append((arm, q_hat))
+                armRewards[arm] = q_hat
 
+        self.prevQs = armRewards
+        self.prevArmCounts = armPulls
         #Best looking arm is the one with the largest Q_hat
         if len(armRewards) > 0:
             q_max = armRewards[0]
-            for q in armRewards:
-                if q[1] > q_max[1]:
-                    q_max = q
-            return q_max[0]
+            q_index = 0
+            for q in range(len(armRewards)):
+                if armRewards[q] > q_max:
+                    q_max = armRewards[q]
+                    q_index = q
+            return q_index
 
         return False
+
+    """
+    gets the Q values for every
+    """
+    def CalculateRegret(self, v):
+        regret = 0
+        for i in range(len(self.prevArmCounts)):
+            regret += self.prevArmCounts[i] * (v - self.prevQs[i])
+        return regret

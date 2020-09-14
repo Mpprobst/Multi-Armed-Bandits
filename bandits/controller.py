@@ -8,6 +8,7 @@ from epsGreedyAgent import epsGreedyAgent
 from UCBAgent import UCBAgent
 from thompsonAgent import thompsonAgent
 import argparse
+import csv
 ######################################################
 AGENTS_MAP = {'randomAgent' : randomAgent,
                'epsGreedyAgent' : epsGreedyAgent,
@@ -23,6 +24,7 @@ class bandit:
         self.arms = []
         for i in range(1, len(lines)):
             self.arms.append(float(lines[i]))
+        self.cumRegret = 0
 
     def pull_arm(self, arm):
         prob = self.arms[arm]
@@ -48,11 +50,28 @@ testBandit = bandit(args.input)
 agent = AGENTS_MAP[args.agent]()
 history = []
 cumulative_reward = 0
-for numRuns in range(args.num_plays):
-    testArm = agent.recommendArm(testBandit, history)
-    reward = testBandit.pull_arm(testArm)
-    cumulative_reward += reward
-    history.append((testArm, reward))
+
+#mine
+cumRegret = 0
+v_star = 0
+for arm in testBandit.arms:
+    if arm > v_star:
+        v_star = arm
+#end mine
+inputNum = "0"
+if args.input == "input/test1.txt":
+    inputNum = "1"
+filename = "results/" + args.agent + "_" + inputNum + ".csv"
+
+with open(filename, 'w', newline = '') as csvfile:
+    writer = csv.writer(csvfile, delimiter = ',')
+    for numRuns in range(args.num_plays):
+        testArm = agent.recommendArm(testBandit, history)
+        reward = testBandit.pull_arm(testArm)
+        cumulative_reward += reward
+        cumRegret += agent.CalculateRegret(v_star)
+        history.append((testArm, reward))
+        writer.writerow([numRuns, cumRegret])
 
 print(cumulative_reward)
 
