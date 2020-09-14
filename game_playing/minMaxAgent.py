@@ -23,6 +23,7 @@ class minMaxAgent:
         # consider checking values and back propping in order to find the first win?
 "QUESTION: Do we update the min max nodes when creating the tree or when searching?"
 "QUESTION: How do we know where to stop? The first case where we see we can win or the most probable tree of winning?"
+"Min or max, current value, what action lead to its value"
         # now search the tree starting at leaf
             # propogate up and compare leaf value to parent -- handle accordingly for min or max nodes
             # check children until there are no more children
