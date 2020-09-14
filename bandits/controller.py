@@ -50,7 +50,6 @@ cumulative_reward = 0
 
 #mine
 cumRegret = 0
-armPulls = [0] * testBandit.getNumArms()
 v_star = 0
 for arm in testBandit.arms:
     if arm > v_star:
@@ -68,8 +67,7 @@ with open(filename, 'w', newline = '') as csvfile:
         reward = testBandit.pull_arm(testArm)
         cumulative_reward += reward
         history.append((testArm, reward))
-        armPulls[testArm] += 1
-        cumRegret += armPulls[testArm] * (v_star - testBandit.arms[testArm])
+        cumRegret += (v_star - testBandit.arms[testArm])
         writer.writerow([numRuns, cumRegret])
 
 print(cumulative_reward)
