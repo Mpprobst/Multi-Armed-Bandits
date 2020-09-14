@@ -18,6 +18,8 @@ class randomAgent:
 
 	def recommendArm(self, bandit, history):
 		numArms = bandit.getNumArms()
+        armRewards = [0.0] * bandit.getNumArms()
+        armPulls = [0] * bandit.getNumArms()
 		for arm in range(bandit.getNumArms()):
             timesArmPulled = 0
             cumRewardForArm = 0
