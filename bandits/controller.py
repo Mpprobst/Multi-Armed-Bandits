@@ -37,9 +37,6 @@ class bandit:
     def getNumArms(self):
         return len(self.arms)
 
-
-
-
 parser = argparse.ArgumentParser(description='Define bandit problem and agents.')
 parser.add_argument('--input', choices=['input/test0.txt', 'input/test1.txt'], default='input/test1.txt', help='The input file, can be input/test0.txt or input/test1.txt')
 parser.add_argument('--agent', choices=AGENTS_MAP.keys(), default='randomAgent', help='The bandit AI. Can be randomAgent, epsGreedyAgent, UCBAgent, or thompsonAgent')
@@ -53,6 +50,7 @@ cumulative_reward = 0
 
 #mine
 cumRegret = 0
+armPulls = [0] * testBandit.getNumArms()
 v_star = 0
 for arm in testBandit.arms:
     if arm > v_star:
@@ -69,11 +67,13 @@ with open(filename, 'w', newline = '') as csvfile:
         testArm = agent.recommendArm(testBandit, history)
         reward = testBandit.pull_arm(testArm)
         cumulative_reward += reward
-        cumRegret += agent.CalculateRegret(v_star)
         history.append((testArm, reward))
+        armPulls[testArm] += 1
+        cumRegret += armPulls[testArm] * (v_star - testBandit.arms[testArm])
         writer.writerow([numRuns, cumRegret])
 
 print(cumulative_reward)
+print(cumRegret)
 
 #debug for me
 pullCounts = [0] * testBandit.getNumArms()

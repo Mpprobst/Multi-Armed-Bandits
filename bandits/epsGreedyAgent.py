@@ -10,12 +10,10 @@ import argparse
 #Okay what do we need to do. First, create agents. This should use command line args.
 #Also we need to create the game
 class epsGreedyAgent:
-    eps = 0.5
+    eps = 0.2
     def __init__(self):
         #self.currentState.print_board()
         self.name = "Eric the Epsilon Greedy Agent"
-        self.prevQs = []
-        self.prevArmCounts = []
 
     """
     bandit is the current bandit with variables like: arms
@@ -47,8 +45,6 @@ class epsGreedyAgent:
                 q_hat = cumRewardForArm / timesArmPulled
                 armRewards[arm] = q_hat
 
-        self.prevQs = armRewards
-        self.prevArmCounts = armPulls
         #Best looking arm is the one with the largest Q_hat
         if len(armRewards) > 0:
             q_max = armRewards[0]
@@ -60,12 +56,3 @@ class epsGreedyAgent:
             return q_index
 
         return False
-
-    """
-    gets the Q values for every
-    """
-    def CalculateRegret(self, v):
-        regret = 0
-        for i in range(len(self.prevArmCounts)):
-            regret += self.prevArmCounts[i] * (v - self.prevQs[i])
-        return regret

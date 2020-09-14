@@ -14,8 +14,6 @@ class UCBAgent:
     def __init__(self):
         #self.currentState.print_board()
         self.name = "Uma the UCB Agent"
-        self.prevQs = []
-        self.prevArmCounts = []
 
     def recommendArm(self, bandit, history):
         armRewards = [0.0] * bandit.getNumArms()
@@ -38,8 +36,6 @@ class UCBAgent:
                 armRewards[arm] = q_hat
                 armPulls[arm] = timesArmPulled
 
-        self.prevQs = armRewards
-        self.prevArmCounts = armPulls
         #Get best looking arm
         if len(armRewards) > 0:
             #Calculate weighted probability of each arm
@@ -58,8 +54,6 @@ class UCBAgent:
     """
     gets the Q values for every
     """
-    def CalculateRegret(self, v):
-        regret = 0
-        for i in range(len(self.prevArmCounts)):
-            regret += self.prevArmCounts[i] * (v - self.prevQs[i])
+    def CalculateRegret(self, v, armPulled):
+        regret = self.prevArmCounts[armPulled] * (v - self.prevQs[armPulled])
         return regret
