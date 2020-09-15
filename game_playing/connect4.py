@@ -7,19 +7,19 @@ import random
 
 class connect4:
     def __init__(self):
-        self.ROW = 6 
+        self.ROW = 6
         self.COLUMN = 7
         self.LINE = 4
         self.player = 0
         self.bitboard = [0,0] # bitboard for each player
         self.dirs = [1, (self.ROW+1), (self.ROW+1)-1, (self.ROW+1)+1] # this is used for bitwise operations
-        self.heights = [(self.ROW+1)*i for i in range(self.COLUMN)] # top empty row for each column 
+        self.heights = [(self.ROW+1)*i for i in range(self.COLUMN)] # top empty row for each column
         self.lowest_row = [0]*self.COLUMN # number of stones in each row
         self.board = np.zeros((self.ROW, self.COLUMN), dtype=int) # matrix representation of the board (just for printing)
         self.top_row = [(x*(self.ROW+1))-1 for x in range(1, self.COLUMN+1)] # top row of the board (this will never change)
 
-        
-    #Returns a copy of the current game object. This could be useful for storing the current state of the game. 
+
+    #Returns a copy of the current game object. This could be useful for storing the current state of the game.
     def clone(self):
         Clone = connect4()
         Clone.bitboard = copy.deepcopy(self.bitboard)
@@ -29,27 +29,29 @@ class connect4:
         Clone.top_row = copy.deepcopy(self.top_row)
         Clone.player = self.player
         return Clone
-        
-    #Executes a move. While not especially important, moves in connect 4 are represented by the column that you wish to place a piece. 
+
+    #Executes a move. While not especially important, moves in connect 4 are represented by the column that you wish to place a piece.
     def move(self, col):
         m2 = 1 << self.heights[col] # position entry on bitboard
         self.heights[col] += 1 # update top empty row for column
-        self.player ^= 1
         self.bitboard[self.player] ^= m2 # XOR operation to insert stone in player's bitboard
         self.board[self.lowest_row[col]][col] = self.player + 1 # update entry in matrix (only for printing)
         self.lowest_row[col] += 1 # update number of stones in column
-    
+
+        if not self.complete():
+            self.player ^= 1
+
     def result(self, player):
         if self.winner(player): return 0 # player wins
         elif self.winner(player^1): return 1 # if opponent wins
-        elif self.draw(): return 0.5 
-    
-    #Returns a heuristic value for how good or bad a state is. In this case, the heuristic is the length of the longest "open" sequence of player pieces on the vertical or horizontal axis. This is not a very good heuristic. 
+        elif self.draw(): return 0.5
+
+    #Returns a heuristic value for how good or bad a state is. In this case, the heuristic is the length of the longest "open" sequence of player pieces on the vertical or horizontal axis. This is not a very good heuristic.
     def heuristic_value(self):
         longestValue = 0
         symbol = ""
         value = self.player+1
-        print(value)
+        #print(value)
         currentLongest = 0
 
         #Search Right
@@ -94,20 +96,20 @@ class connect4:
         return currentLongest
 
     # checks if column is full
-    def isValidMove(self, col): 
+    def isValidMove(self, col):
         return self.heights[col] != self.top_row[col]
-    
+
     # evaluate board, find out if there's a winner
     def winner(self, color):
         for d in self.dirs:
             bb = self.bitboard[color]
-            for i in range(1, self.LINE): 
+            for i in range(1, self.LINE):
                 bb &= self.bitboard[color] >> (i*d)
             if (bb != 0): return True
         return False
-    
 
-    #Prints the game board in a relatively easy to interpret format. 
+
+    #Prints the game board in a relatively easy to interpret format.
     def print_board(self):
         board = np.flip(self.board, axis=0)
         for row in board:
@@ -121,24 +123,24 @@ class connect4:
             sys.stdout.write(str(i))
         sys.stdout.write('\n\n')
 
-    
+
     def draw(self): # is it draw?
         return not self.getMoves() and not self.winner(self.player) and not self.winner(self.player^1)
-    
-    def complete(self): # is it game over? 
+
+    def complete(self): # is it game over?
         return self.winner(self.player) or self.winner(self.player^1) or not self.getMoves()
-    
+
     # returns list of available moves
     def getMoves(self):
         if self.winner(self.player) or self.winner(self.player^1): return [] # if terminal state, return empty list
-        
+
         listMoves = []
         for i in range(self.COLUMN):
-            if self.lowest_row[i] < self.ROW: 
+            if self.lowest_row[i] < self.ROW:
                 listMoves.append(i)
         return listMoves
 
-    #Functions that enable you to directly compare connect4 objects. This will allow you to use both the '==' and '!=' operators. 
+    #Functions that enable you to directly compare connect4 objects. This will allow you to use both the '==' and '!=' operators.
     def __eq__(self, other):
         """Override the default Equals behavior"""
         return self.player == other.player and self.bitboard == other.bitboard and np.array_equal(self.board, other.board)
