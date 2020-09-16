@@ -56,7 +56,9 @@ class controller:
 
         if not self.currentGame.draw():
              print('%s won' % currentPlayers[self.currentGame.player].name+" "+str(self.currentGame.player))
-        else: print('Draw')
+        else:
+            print('Draw')
+            return -1
         return self.currentGame.player
 
 
@@ -71,9 +73,14 @@ parser.add_argument('--num_plays', type=int, default = 1, help='Number of games 
 args = parser.parse_args()
 
 p2Wins = 0 #tracks wins by player2
+draws = 0
 #Runs a game the specified number of times.
 for numRuns in range(args.num_plays):
     gameControl = controller(args.agent1, args.agent2, args.game)
-    p2Wins += gameControl.play_game()
+    result = gameControl.play_game()
+    if result == -1:
+        draws += 1
+    else:
+        p2Wins += result
 
-print(f'of {numRuns}, {args.agent2} won {p2wins * 100.0 / numRuns}% of the time')
+print(f'of {args.num_plays}, {args.agent2} won {p2Wins} or {p2Wins * 100.0 / args.num_plays}% with {draws} draws')

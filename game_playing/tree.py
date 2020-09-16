@@ -22,7 +22,7 @@ class Tree:
         self.height = 1
         self.numNodes = 1
         self.root = Node()
-        
+
     def Minimax(self, gameState):
         self.root = self.MaxValue(gameState)
         return self.root.action
