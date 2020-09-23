@@ -8,7 +8,7 @@ import tree
 ######################################################
 """
 RESULTS:
-Connect4: 72 / 100 Wins against Randy the Random Agent
+Connect4: 73 / 100 Wins against Randy the Random Agent
 Breakthrough:
 """
 class minMaxAgent:
@@ -37,7 +37,7 @@ class minMaxAgent:
     def MaxValue(self, node):
         if len(node.children) == 0:
             node.value = 0
-            print(f'root reached at height: {node.height}')
+            #print(f'root reached at height: {node.height}')
             return node
         #update children
         for child in node.children:
@@ -55,7 +55,7 @@ class minMaxAgent:
     def MinValue(self, node):
         if len(node.children) == 0:
             node.value = node.state.heuristic_value()
-            print(f'root reached at height: {node.height}')
+            #print(f'root reached at height: {node.height}')
             return node
 
         for child in node.children:
