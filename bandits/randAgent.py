@@ -7,13 +7,14 @@ import random
 import argparse
 ######################################################
 
-#Okay what do we need to do. First, create agents. This should use command line args. 
+#Okay what do we need to do. First, create agents. This should use command line args.
 #Also we need to create the game
-class randomAgent: 
+class randomAgent:
 	def __init__(self):
 		#self.currentState.print_board()
 		self.name = "Randy the RandomAgent"
-	
+
+
 	def recommendArm(self, bandit, history):
 		numArms = bandit.getNumArms()
 		return random.choice(range(numArms))

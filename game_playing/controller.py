@@ -10,6 +10,7 @@ from minMaxAgent import minMaxAgent
 from alphaBetaAgent import alphaBetaAgent
 from MCTSAgent import MCTSAgent
 import argparse
+import csv
 ######################################################
 AGENTS_MAP = {'randomAgent' : randomAgent,
                'minMaxAgent' : minMaxAgent,
@@ -18,9 +19,9 @@ AGENTS_MAP = {'randomAgent' : randomAgent,
 
 
 GAME_MAP = {'connect4' : connect4,'breakthrough' : breakthrough}
-                
-#The controller class. For the most part you shouldn't need to do anything here. This just sets up the players using command line parameters. 
-class controller: 
+
+#The controller class. For the most part you shouldn't need to do anything here. This just sets up the players using command line parameters.
+class controller:
     def __init__(self, agent1, agent2, game):
         testGame = connect4()
         player1func=AGENTS_MAP[agent1]
@@ -29,36 +30,40 @@ class controller:
         self.currentGame = gamefunc()
         self.player1 = player1func()
         self.player2 = player2func()
-        
-    #Sets up the games to play. Player 1 will always go first (plays circles) and Player 2 will always go second (plays crosses). 
+
+    #Sets up the games to play. Player 1 will always go first (plays circles) and Player 2 will always go second (plays crosses).
     def play_game(self):
         currentTurn = 0
         currentPlayers = [self.player1, self.player2]
-        
+
         if args.verbose:
             self.currentGame.print_board()
-            
+
         while(not self.currentGame.complete()):
             suggestedMove = ""
             if currentTurn == 0:
                 suggestedMove = self.player1.suggestMove(self.currentGame)
                 currentTurn = 1
-                
+
             else:
                 suggestedMove = self.player2.suggestMove(self.currentGame)
                 currentTurn = 0
             self.currentGame.move(suggestedMove)
             if args.verbose:
                 print("MAKING MOVE: ", suggestedMove)
-            
+
                 self.currentGame.print_board()
-            
-        if not self.currentGame.draw(): print('%s won' % currentPlayers[self.currentGame.player].name+" "+str(self.currentGame.player))
-        else: print('Draw') 
 
- 
+        if not self.currentGame.draw():
+             print('%s won' % currentPlayers[self.currentGame.player].name+" "+str(self.currentGame.player))
+        else:
+            print('Draw')
+            return -1
+        return self.currentGame.player
 
-#Set of command line arguments that can be used to customize your tests. Can define the type of agent (random, minMax, alphaBeta, or MCTS), the game (connect4 or breakthrough), whether you want additional information printed (verbose mode) and how many games you want the agents to play. 
+
+
+#Set of command line arguments that can be used to customize your tests. Can define the type of agent (random, minMax, alphaBeta, or MCTS), the game (connect4 or breakthrough), whether you want additional information printed (verbose mode) and how many games you want the agents to play.
 parser = argparse.ArgumentParser(description='Define the player agents and the game to play.')
 parser.add_argument('--agent1', choices=AGENTS_MAP.keys(), default='randomAgent', help='The player 1 AI. Can be randomAgent, minMaxAgent, alphaBetaAgent, or MCTSAgent')
 parser.add_argument('--agent2', choices=AGENTS_MAP.keys(), default='randomAgent', help='The player 2 AI. Can be randomAgent, minMaxAgent, alphaBetaAgent, or MCTSAgent')
@@ -66,7 +71,16 @@ parser.add_argument('--game', choices=GAME_MAP.keys(), default='connect4', help=
 parser.add_argument('--verbose', help='Print more information.', action='store_true')
 parser.add_argument('--num_plays', type=int, default = 1, help='Number of games you want the agents to play.')
 args = parser.parse_args()
-#Runs a game the specified number of times. 
+
+p2Wins = 0 #tracks wins by player2
+draws = 0
+#Runs a game the specified number of times.
 for numRuns in range(args.num_plays):
     gameControl = controller(args.agent1, args.agent2, args.game)
-    gameControl.play_game()
+    result = gameControl.play_game()
+    if result == -1:
+        draws += 1
+    else:
+        p2Wins += result
+
+print(f'of {args.num_plays}, {args.agent2} won {p2Wins} or {p2Wins * 100.0 / args.num_plays}% with {draws} draws')
